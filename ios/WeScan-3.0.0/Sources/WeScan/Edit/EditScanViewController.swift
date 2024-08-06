@@ -11,7 +11,7 @@ import UIKit
 
 /// The `EditScanViewController` offers an interface for the user to edit the detected quadrilateral.
 final class EditScanViewController: UIViewController {
-
+    private let timeoutDuration: TimeInterval = 0.1
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.clipsToBounds = true
@@ -100,12 +100,16 @@ final class EditScanViewController: UIViewController {
         let touchDown = UILongPressGestureRecognizer(target: zoomGestureController, action: #selector(zoomGestureController.handle(pan:)))
         touchDown.minimumPressDuration = 0
         view.addGestureRecognizer(touchDown)
+
+       
     }
 
     override public func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         adjustQuadViewConstraints()
         displayQuad()
+        // Auto-trigger with a timeout
+        scheduleAutoTrigger()
     }
 
     override public func viewWillDisappear(_ animated: Bool) {
@@ -227,4 +231,9 @@ final class EditScanViewController: UIViewController {
         return quad
     }
 
+    private func scheduleAutoTrigger() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeoutDuration) {
+            self.pushReviewController()
+        }
+    }
 }

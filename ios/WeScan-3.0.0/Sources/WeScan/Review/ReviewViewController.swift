@@ -11,7 +11,7 @@ import UIKit
 /// The `ReviewViewController` offers an interface to review the image after it
 /// has been cropped and deskewed according to the passed in quadrilateral.
 final class ReviewViewController: UIViewController {
-
+    private let timeoutDuration: TimeInterval = 0.5
     private var rotationAngle = Measurement<UnitAngle>(value: 0, unit: .degrees)
     private var enhancedImageIsAvailable = false
     private var isCurrentlyDisplayingEnhancedImage = false
@@ -81,6 +81,9 @@ final class ReviewViewController: UIViewController {
                                   comment: "The review title of the ReviewController"
         )
         navigationItem.rightBarButtonItem = doneButton
+
+        // Auto-trigger with a timeout
+        scheduleAutoTrigger()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -178,6 +181,12 @@ final class ReviewViewController: UIViewController {
         newResults.doesUserPreferEnhancedScan = isCurrentlyDisplayingEnhancedImage
         imageScannerController.imageScannerDelegate?
             .imageScannerController(imageScannerController, didFinishScanningWithResults: newResults)
+    }
+
+    private func scheduleAutoTrigger() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + timeoutDuration) {
+            self.finishScan()
+        }
     }
 
 }
